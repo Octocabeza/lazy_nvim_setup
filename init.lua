@@ -12,6 +12,9 @@ vim.o.smartindent = true
 vim.o.cursorline = true
 vim.o.cursorlineopt = 'number'
 
+vim.opt.updatetime = 50
+vim.opt.colorcolumn = "120"
+
 vim.o.swapfile = false
 vim.o.backup = false
 
@@ -72,7 +75,7 @@ vim.keymap.set("n", "<C-e>", ui.toggle_quick_menu)
 
 vim.keymap.set("n", "<C-h>", function() ui.nav_file(1) end )
 vim.keymap.set("n", "<C-n>", function() ui.nav_file(2) end )
-vim.keymap.set("n", "<C-b>", function() ui.nav_file(3) end )
+vim.keymap.set("n", "<C-l>", function() ui.nav_file(3) end )
 vim.keymap.set("n", "<C-g>", function() ui.nav_file(4) end )
 
 
@@ -93,9 +96,21 @@ require("lazy").setup({
         {
             'ThePrimeagen/vim-apm'
         },
+        { "nvim-tree/nvim-web-devicons", opts = {} },
         {"neovim/nvim-lspconfig"},
         {"williamboman/mason.nvim"},
         {"williamboman/mason-lspconfig.nvim"},
+        {
+            "luckasRanarison/tailwind-tools.nvim",
+            name = "tailwind-tools",
+            build = ":UpdateRemotePlugins",
+            dependencies = {
+                "nvim-treesitter/nvim-treesitter",
+                "nvim-telescope/telescope.nvim", -- optional
+                "neovim/nvim-lspconfig", -- optional
+            },
+            opts = {} -- your configuration
+        },
         {
             "hrsh7th/nvim-cmp",
             dependencies = {
@@ -110,7 +125,8 @@ require("lazy").setup({
                 'rafamadriz/friendly-snippets',
             },
         },
-        { "nvim-treesitter/nvim-treesitter",  build = ":TSUpdate" },
+        {"nvim-treesitter/nvim-treesitter", branch = 'master', lazy = false, build = ":TSUpdate"},
+        { "bluz71/vim-nightfly-colors", name = "nightfly", lazy = false, priority = 1000 },
         {
             "kdheepak/lazygit.nvim",
             lazy = true,
@@ -130,6 +146,28 @@ require("lazy").setup({
             keys = {
                 { "<leader>lg", "<cmd>LazyGit<cr>", desc = "LazyGit" }
             }
+        },
+        {
+            "hat0uma/csvview.nvim",
+            ---@module "csvview"
+            ---@type CsvView.Options
+            opts = {
+                parser = { comments = { "#", "//" } },
+                keymaps = {
+                    -- Text objects for selecting fields
+                    textobject_field_inner = { "if", mode = { "o", "x" } },
+                    textobject_field_outer = { "af", mode = { "o", "x" } },
+                    -- Excel-like navigation:
+                    -- Use <Tab> and <S-Tab> to move horizontally between fields.
+                    -- Use <Enter> and <S-Enter> to move vertically between rows and place the cursor at the end of the field.
+                    -- Note: In terminals, you may need to enable CSI-u mode to use <S-Tab> and <S-Enter>.
+                    jump_next_field_end = { "<Tab>", mode = { "n", "v" } },
+                    jump_prev_field_end = { "<S-Tab>", mode = { "n", "v" } },
+                    jump_next_row = { "<Enter>", mode = { "n", "v" } },
+                    jump_prev_row = { "<S-Enter>", mode = { "n", "v" } },
+                },
+            },
+            cmd = { "CsvViewEnable", "CsvViewDisable", "CsvViewToggle" },
         }
     },
     -- Configure any other settings here. See the documentation for more details.
@@ -207,8 +245,7 @@ cmp.setup.cmdline(':', {
     matching = { disallow_symbol_nonprefix_matching = false }
 })
 
-vim.o.background = "dark" -- or "light" for light mode
-vim.cmd([[colorscheme gruvbox]])
+vim.cmd([[colorscheme nightfly]])
 
 local autocmd = vim.api.nvim_create_autocmd
 local augroup = vim.api.nvim_create_augroup
@@ -231,6 +268,64 @@ autocmd('LspAttach', {
     end
 })
 
+vim.api.nvim_create_autocmd('BufEnter', {
+  desc = 'Convert blade filetype to html',
+  pattern = '*.blade.php',
+  command = 'set filetype=html',
+})
 
-
-
+require'nvim-web-devicons'.setup {
+ -- your personal icons can go here (to override)
+ -- you can specify color or cterm_color instead of specifying both of them
+ -- DevIcon will be appended to `name`
+ override = {
+  zsh = {
+    icon = "",
+    color = "#428850",
+    cterm_color = "65",
+    name = "Zsh"
+  }
+ };
+ -- globally enable different highlight colors per icon (default to true)
+ -- if set to false all icons will have the default icon's color
+ color_icons = true;
+ -- globally enable default icons (default to false)
+ -- will get overriden by `get_icons` option
+ default = true;
+ -- globally enable "strict" selection of icons - icon will be looked up in
+ -- different tables, first by filename, and if not found by extension; this
+ -- prevents cases when file doesn't have any extension but still gets some icon
+ -- because its name happened to match some extension (default to false)
+ strict = true;
+ -- set the light or dark variant manually, instead of relying on `background`
+ -- (default to nil)
+ variant = "light|dark";
+ -- same as `override` but specifically for overrides by filename
+ -- takes effect when `strict` is true
+ override_by_filename = {
+  [".gitignore"] = {
+    icon = "",
+    color = "#f1502f",
+    name = "Gitignore"
+  }
+ };
+ -- same as `override` but specifically for overrides by extension
+ -- takes effect when `strict` is true
+ override_by_extension = {
+  ["log"] = {
+    icon = "",
+    color = "#81e043",
+    name = "Log"
+  }
+ };
+ -- same as `override` but specifically for operating system
+ -- takes effect when `strict` is true
+ override_by_operating_system = {
+  ["apple"] = {
+    icon = "",
+    color = "#A2AAAD",
+    cterm_color = "248",
+    name = "Apple",
+  },
+ };
+}
