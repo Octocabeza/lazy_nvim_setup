@@ -39,6 +39,10 @@ vim.keymap.set("v", "<leader>yy", "\"+yy")
 vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
 
+vim.keymap.set("n", "<leader>pu", '<cmd>!vendor/bin/phpunit <cr>')
+vim.keymap.set("n", "<leader>puf", '<cmd>!vendor/bin/phpunit %<cr>')
+vim.keymap.set("v", "<leader>y", "\"+y")
+
 local tele_built = require('telescope.builtin')
 vim.keymap.set('n', '<leader>pf', tele_built.find_files, { desc = "Find Files" })
 vim.keymap.set('n', '<leader>ps', tele_built.live_grep, { desc = "Grep" })
@@ -55,6 +59,18 @@ vim.keymap.set("n", "N", "Nzzzv")
 vim.keymap.set('n', '<leader>gg', "<cmd>LazyGit<cr>", { desc = "Lazy Git" })
 vim.keymap.set('n', '<leader>ss', "<cmd>write<cr>", { desc = "Write File" })
 
+local mark = require("harpoon.mark")
+local ui = require("harpoon.ui")
+
+vim.keymap.set("n", "<leader>a", mark.add_file)
+vim.keymap.set("n", "<C-e>", ui.toggle_quick_menu)
+
+vim.keymap.set("n", "<C-h>", function() ui.nav_file(1) end )
+vim.keymap.set("n", "<C-n>", function() ui.nav_file(2) end )
+vim.keymap.set("n", "<C-b>", function() ui.nav_file(3) end )
+vim.keymap.set("n", "<C-g>", function() ui.nav_file(4) end )
+
+
 vim.g.maplocalleader = "\\"
 
 require("lazy").setup({
@@ -63,6 +79,10 @@ require("lazy").setup({
         -- Configure LazyVim to load gruvbox
         {
             'nvim-telescope/telescope.nvim', tag = '0.1.8',
+            dependencies = { 'nvim-lua/plenary.nvim' }
+        },
+        {
+            'ThePrimeagen/harpoon',
             dependencies = { 'nvim-lua/plenary.nvim' }
         },
         {"neovim/nvim-lspconfig"},
